@@ -1,0 +1,6 @@
+{
+  "name": "Skill Swap Platform",
+  "description": "A platform for users to connect and exchange skills. Users can list skills they offer and skills they want, and send swap requests to others.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
