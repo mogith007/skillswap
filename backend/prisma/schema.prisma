@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(uuid())
+  name           String
+  email          String    @unique
+  password       String
+  location       String?
+  profilePhoto   String?
+  profileType    ProfileType @default(PUBLIC)
+  availability   Availability[]
+  skillsOffered  Skill[]   @relation("OfferedSkills")
+  skillsWanted   Skill[]   @relation("WantedSkills")
+  swapRequestsSent     SwapRequest[] @relation("SentRequests")
+  swapRequestsReceived SwapRequest[] @relation("ReceivedRequests")
+  ratingsGiven   Rating[] @relation("RatingsGiven")
+  ratingsReceived Rating[] @relation("RatingsReceived")
+  createdAt      DateTime  @default(now())
+}
+
+model Skill {
+  id         String    @id @default(uuid())
+  name       String
+  offeredBy  User[]    @relation("OfferedSkills")
+  wantedBy   User[]    @relation("WantedSkills")
+}
+
+model Availability {
+  id       String   @id @default(uuid())
+  day      String   // e.g., "Weekends", "Evenings"
+  userId   String
+  user     User     @relation(fields: [userId], references: [id])
+}
+
+model SwapRequest {
+  id           String       @id @default(uuid())
+  fromUser     User         @relation("SentRequests", fields: [fromUserId], references: [id])
+  fromUserId   String
+  toUser       User         @relation("ReceivedRequests", fields: [toUserId], references: [id])
+  toUserId     String
+  skillOffered String
+  skillWanted  String
+  message      String?
+  status       SwapStatus   @default(PENDING)
+  createdAt    DateTime     @default(now())
+}
+
+model Rating {
+  id         String   @id @default(uuid())
+  fromUser   User     @relation("RatingsGiven", fields: [fromUserId], references: [id])
+  fromUserId String
+  toUser     User     @relation("RatingsReceived", fields: [toUserId], references: [id])
+  toUserId   String
+  comment    String?
+  score      Int
+  createdAt  DateTime @default(now())
+}
+
+model Admin {
+  id       String   @id @default(uuid())
+  email    String   @unique
+  password String
+}
+
+enum ProfileType {
+  PUBLIC
+  PRIVATE
+}
+
+enum SwapStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  DELETED
+}
